@@ -8,15 +8,16 @@
     var deck = document.getElementById('deck');
     if (!deck) return;
 
-      var slides = Array.from(deck.querySelectorAll('.slide'));
+      var slides = Array.from(deck.children).filter(function (node) { return node.classList.contains('slide'); });
+      if (!slides.length) return;
       var total = slides.length;
       var current = 0;
-      var notesVisible = false;
+      var notesWindow = null;
+      var prevButton = document.getElementById('prevBtn');
+      var nextButton = document.getElementById('nextBtn');
 
       var progressBar = document.getElementById('progress');
       var counter = document.getElementById('counter');
-      var notesPanel = document.getElementById('notes-panel');
-      var notesContent = document.getElementById('notes-content');
 
       /* URL 해시 동기화 */
       function readHash() {
@@ -44,8 +45,14 @@
         var totStr = String(total).padStart(2, '0');
         if (counter) counter.textContent = curStr + ' / ' + totStr;
 
-        var noteText = slides[current].getAttribute('data-notes') || '작성된 스피치 노트가 없습니다.';
-        if (notesContent) notesContent.textContent = noteText;
+        slides.forEach(function (slide, index) {
+          slide.classList.toggle('active', index === current);
+          slide.setAttribute('aria-hidden', String(index !== current));
+          slide.inert = index !== current;
+        });
+        prevButton.disabled = current === 0;
+        nextButton.disabled = current === total - 1;
+        updateNotes();
 
         writeHash();
       }
@@ -73,16 +80,48 @@
           };
 
           /* 발표자 노트 토글 */
-          function toggleNotes() {
-            notesVisible = !notesVisible;
-            if (notesPanel) notesPanel.classList.toggle('visible', notesVisible);
-          }
+function toggleNotes() {
+  if (notesWindow && !notesWindow.closed) {
+    notesWindow.close();
+    notesWindow = null;
+    return;
+  }
+  notesWindow = window.open('', 'SpeakerNotes', 'width=520,height=420,top=80,left=80');
+  if (!notesWindow) return;
+  notesWindow.document.write(`<!DOCTYPE html>
+<html><head><style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+         background: #1a1a1a; color: #e0e0e0; padding: 24px; }
+  .slide-num { font-size: 12px; color: #888; margin-bottom: 12px; font-family: monospace; }
+  .label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+           color: #666; margin-bottom: 8px; }
+  .notes { font-size: 16px; line-height: 1.8; color: #ccc; }
+</style></head><body>
+  <div class="slide-num" id="sn"></div>
+  <div class="label">Speaker Notes</div>
+  <div class="notes" id="nt"></div>
+</body></html>`);
+  notesWindow.document.close();
+  updateNotes();
+}
+
+function updateNotes() {
+  if (!notesWindow || notesWindow.closed) return;
+  try {
+    const note = slides[current].dataset.notes || '작성된 발표자 노트가 없습니다.';
+    notesWindow.document.getElementById('nt').textContent = note;
+    notesWindow.document.getElementById('sn').textContent =
+      'Slide ' + (current + 1) + ' / ' + slides.length;
+  } catch(e) {}
+}
 
           window.toggleNotes = toggleNotes;
 
             /* 키보드 내비게이션 */
             document.addEventListener('keydown', function (e) {
-              if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+              if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+              if (e.key === ' ' && e.target.closest('button, a')) return;
 
               switch (e.key) {
                 case 'ArrowRight':
@@ -130,7 +169,7 @@
 
             /* 클릭 내비게이션 (화면 왼쪽 1/3 클릭 시 이전, 오른쪽 2/3 클릭 시 다음) */
             deck.addEventListener('click', function (e) {
-              if (e.target.closest('a, button, table, input')) return;
+              if (Date.now() < suppressClickUntil || e.target.closest('a, button, table, input')) return;
               var rect = deck.getBoundingClientRect();
               var x = e.clientX - rect.left;
               if (x < rect.width / 3) {
@@ -142,10 +181,13 @@
 
             /* 터치 스와이프 제어 */
             var touchStartX = 0;
+            var touchStartY = 0;
             var touchStartTime = 0;
+            var suppressClickUntil = 0;
 
               deck.addEventListener('touchstart', function (e) {
                 touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
                 touchStartTime = Date.now();
               }, { passive: true });
 
@@ -153,7 +195,9 @@
                   var dx = e.changedTouches[0].clientX - touchStartX;
                   var dt = Date.now() - touchStartTime;
 
-                    if (dt > 500 || Math.abs(dx) < 50) return;
+                    var dy = e.changedTouches[0].clientY - touchStartY;
+                    if (dt > 500 || Math.abs(dx) < 50 || Math.abs(dx) <= Math.abs(dy)) return;
+                    suppressClickUntil = Date.now() + 500;
                     if (dx < 0) {
                       next();
                     } else {
@@ -166,6 +210,11 @@
               readHash();
               updateUI();
             });
+
+            prevButton.addEventListener('click', prev);
+            nextButton.addEventListener('click', next);
+            document.getElementById('notesToggleBtn').addEventListener('click', toggleNotes);
+            document.getElementById('fullscreenBtn').addEventListener('click', window.toggleFullscreen);
 
             /* 초기화 */
             readHash();
