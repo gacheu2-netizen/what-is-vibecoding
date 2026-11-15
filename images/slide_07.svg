@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="rocketBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="rocketNose" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <filter id="clayShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="4" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- 배경 -->
+  <rect width="800" height="450" rx="20" fill="url(#bg)"/>
+
+  <!-- 부서진 벽돌 효과 -->
+  <g opacity="0.6">
+    <rect x="180" y="320" width="70" height="35" rx="8" fill="#e2e8f0" filter="url(#clayShadow)"/>
+    <rect x="150" y="270" width="60" height="30" rx="8" fill="#cbd5e1" filter="url(#clayShadow)"/>
+    <rect x="220" y="250" width="55" height="28" rx="8" fill="#94a3b8" filter="url(#clayShadow)"/>
+    <rect x="260" y="300" width="65" height="32" rx="8" fill="#cbd5e1" filter="url(#clayShadow)"/>
+  </g>
+
+  <!-- 비행 궤적 -->
+  <path d="M 220 340 Q 320 280 440 180" stroke="#38bdf8" stroke-width="8" stroke-dasharray="12 8" fill="none" opacity="0.4"/>
+
+  <!-- 불꽃 -->
+  <polygon points="410,230 450,260 415,200" fill="url(#flame)" filter="url(#clayShadow)"/>
+  <polygon points="400,240 435,265 410,210" fill="#fef08a" opacity="0.9"/>
+
+  <!-- 로켓 본체 -->
+  <g transform="rotate(-35 480 150)" filter="url(#clayShadow)">
+    <!-- 날개 -->
+    <path d="M 440 170 L 410 200 L 440 210 Z" fill="#f43f5e"/>
+    <path d="M 520 170 L 550 200 L 520 210 Z" fill="#f43f5e"/>
+    <!-- 몸통 -->
+    <rect x="440" y="110" width="80" height="100" rx="25" fill="url(#rocketBody)"/>
+    <!-- 창문 -->
+    <circle cx="480" cy="150" r="20" fill="#e0f2fe" stroke="#38bdf8" stroke-width="4"/>
+    <circle cx="475" cy="145" r="6" fill="#fff"/>
+    <!-- 노즈콘 -->
+    <path d="M 440 110 C 440 60 520 60 520 110 Z" fill="url(#rocketNose)"/>
+  </g>
+
+  <!-- 축하 컨페티 -->
+  <circle cx="580" cy="90" r="10" fill="#fbbf24" filter="url(#clayShadow)"/>
+  <circle cx="640" cy="140" r="8" fill="#34d399" filter="url(#clayShadow)"/>
+  <circle cx="530" cy="60" r="6" fill="#f43f5e" filter="url(#clayShadow)"/>
+  <circle cx="680" cy="90" r="9" fill="#a855f7" filter="url(#clayShadow)"/>
+  <rect x="610" y="70" width="14" height="8" rx="2" fill="#38bdf8" transform="rotate(25 610 70)"/>
+  <rect x="560" y="130" width="12" height="6" rx="2" fill="#fbbf24" transform="rotate(-40 560 130)"/>
+
+  <!-- 텍스트 배너 -->
+  <rect x="240" y="380" width="320" height="42" rx="12" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="1"/>
+  <text x="400" y="407" font-family="sans-serif" font-size="17" font-weight="bold" fill="#38bdf8" text-anchor="middle">🚀 초고속 실행 &amp; 실패 비용 제로</text>
+</svg>
